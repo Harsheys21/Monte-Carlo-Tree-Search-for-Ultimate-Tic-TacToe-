@@ -27,14 +27,20 @@ def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
         is_opponent = True
         if board.current_player(state) == bot_identity:
             is_opponent = False
-        m = ucb(node, is_opponent)
+        
+        child_nodes_values = node.child_nodes.values()
+        best_node = None
+        best_ucb_value = float('-inf')  # Initialize to negative infinity
 
-        for key, value in node.child_nodes.items():
-            u = ucb(value, is_opponent)
-            if u > m:
-                node = value
-                m = u
-                state = board.next_state(state, node.parent_action)
+        for child_node in child_nodes_values:
+            current_ucb_value = ucb(child_node, is_opponent)
+            if current_ucb_value >= best_ucb_value:
+                best_node = child_node
+                best_ucb_value = current_ucb_value
+
+        node = best_node
+
+        state = board.next_state(state, node.parent_action)
 
     return node, state
 
@@ -130,7 +136,7 @@ def get_best_action(root_node: MCTSNode):
     best_action = None
     best_win_rate = -1
 
-    for child_node in root_node.child_nodes:
+    for child_node in root_node.child_nodes.values():
         if child_node.visits > 0:
             win_rate = child_node.wins/ child_node.visits
             if win_rate > best_win_rate:
@@ -166,6 +172,7 @@ def think(board: Board, current_state):
         # ...
         # traverse node to find best option
         print("num of iter:", _)
+        print("length of node untried actions:", len(node.untried_actions))
         leaf_node, state = traverse_nodes(node, board, state, bot_identity)
 
         # add node to tree
