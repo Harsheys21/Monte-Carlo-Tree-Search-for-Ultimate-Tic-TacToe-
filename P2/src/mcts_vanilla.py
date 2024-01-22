@@ -60,7 +60,8 @@ def expand_leaf(node: MCTSNode, board: Board, state):
     
     return node, state
 
-
+# rollout (board, state)
+# simulate the remainder of the game by making random moves until the game is over
 def rollout(board: Board, state):
     """ Given the state of the game, the rollout plays out the remainder randomly.
 
@@ -72,10 +73,14 @@ def rollout(board: Board, state):
         state: The terminal game state
 
     """
-    pass
+    while board.is_ended(state) == False:                   # continue the loop until the game is ended
+        randomAction = choice(board.legal_actions(state))   # randomly select a move from legal moves
+        state = board.next_state(state, randomAction)       # update the state accordingly
+    return state                                            # return the final state after the rollout
 
 # backpropagate(node, won)
-# uses recursion to traverse from the leaf node to the root. it updates the statistics of each node on the way
+# uses recursion to traverse from the leaf node to the root
+# it updates the statistics of each node on the way
 def backpropagate(node: MCTSNode|None, won: bool):
     """ Navigates the tree from a leaf node to the root, updating the win and visit count of each node along the path.
 
