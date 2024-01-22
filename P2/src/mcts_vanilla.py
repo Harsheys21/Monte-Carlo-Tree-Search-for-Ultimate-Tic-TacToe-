@@ -52,8 +52,13 @@ def expand_leaf(node: MCTSNode, board: Board, state):
         state: The state associated with that node
 
     """
-
-    pass
+    if len(node.untried_actions) > 0:
+        action = node.pop()
+        state = board.next_state(state, action) 
+        n = MCTSNode(parent=node,parent_action=action, action_list=board.legal_actions(state))
+        node.child_nodes[action] = n
+    
+    return node, state
 
 
 def rollout(board: Board, state):
