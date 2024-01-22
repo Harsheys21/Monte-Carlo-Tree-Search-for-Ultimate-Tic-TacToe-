@@ -69,7 +69,8 @@ def rollout(board: Board, state):
     """
     pass
 
-
+# backpropagate(node, won)
+# uses recursion to traverse from the leaf node to the root. it updates the statistics of each node on the way
 def backpropagate(node: MCTSNode|None, won: bool):
     """ Navigates the tree from a leaf node to the root, updating the win and visit count of each node along the path.
 
@@ -78,7 +79,11 @@ def backpropagate(node: MCTSNode|None, won: bool):
         won:    An indicator of whether the bot won or lost the game.
 
     """
-    pass
+    if(node.parent is None):            # check if the current node has no parent
+        return                          # if leaf node is reached, terminate the recursion
+    node.wins += won                    # if the base case is false, update the wins
+    node.visits += 1                    # and visits of the current node based on the outcome of the game
+    backpropagate(node.parent, won)     # recursively call backpropagate() with the parent of the current node and the same won value
 
 def ucb(node: MCTSNode, is_opponent: bool):
     """ Calcualtes the UCB value for the given node from the perspective of the bot
