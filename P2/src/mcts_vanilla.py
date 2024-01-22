@@ -81,7 +81,9 @@ def backpropagate(node: MCTSNode|None, won: bool):
     """
     if(node.parent is None):            # check if the current node has no parent
         return                          # if leaf node is reached, terminate the recursion
-    node.wins += won                    # if the base case is false, update the wins
+    
+    if won == True:
+        node.wins += 1                  # if the base case is false, update the wins
     node.visits += 1                    # and visits of the current node based on the outcome of the game
     backpropagate(node.parent, won)     # recursively call backpropagate() with the parent of the current node and the same won value
 
