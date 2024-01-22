@@ -22,7 +22,7 @@ def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
         state: The state associated with that node
 
     """
-    while len(node.untried_actions) == 0 and board.is_ended(state) == False and node.child_nodes:
+    while len(node.child_nodes) > 0 and len(node.untried_actions) == 0 and board.is_ended(state) == False:
         # finds out if last action was committed by opponent
         is_opponent = True
         if board.current_player(state) == bot_identity:
@@ -41,7 +41,6 @@ def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
         node = best_node
 
         state = board.next_state(state, node.parent_action)
-
     return node, state
 
 def expand_leaf(node: MCTSNode, board: Board, state):
@@ -94,12 +93,13 @@ def backpropagate(node: MCTSNode|None, won: bool):
         won:    An indicator of whether the bot won or lost the game.
 
     """
-    if(node.parent is None):            # check if the current node has no parent
-        return                          # if leaf node is reached, terminate the recursion
-    
     if won == True:
         node.wins += 1                  # if the base case is false, update the wins
     node.visits += 1                    # and visits of the current node based on the outcome of the game
+
+    if(node.parent is None):            # check if the current node has no parent
+        return                          # if leaf node is reached, terminate the recursion
+
     backpropagate(node.parent, won)     # recursively call backpropagate() with the parent of the current node and the same won value
 
 def ucb(node: MCTSNode, is_opponent: bool):
@@ -113,10 +113,11 @@ def ucb(node: MCTSNode, is_opponent: bool):
     """
     # ucb formula is (child node wins / child node total visits) + (exploration factor)*(sqrt(ln(current node total visits)/child node total visits))
     if node.visits == 0:
-        return float("-inf")
+        return float("inf")
     
     first_half = node.wins / node.visits
-    second_half = explore_factor * sqrt(log(node.parent.visits) / node.visits) 
+    v = log(node.parent.visits)
+    second_half = explore_faction * sqrt(v / node.visits) 
     ucb_value = first_half + second_half
 
     if is_opponent == True:
@@ -181,7 +182,7 @@ def think(board: Board, current_state):
         w = is_win(board, state, bot_identity)
 
         # add information from simulation back into board
-        backpropagate(node, w)
+        backpropagate(expand_node, w)
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
     best_action = get_best_action(root_node)
