@@ -135,14 +135,12 @@ def get_best_action(root_node: MCTSNode):
     """
     best_action = None
     best_win_rate = -1
-
-    for child_node in root_node.child_nodes.values():
+    for key, child_node in root_node.child_nodes.items():
         if child_node.visits > 0:
             win_rate = child_node.wins/ child_node.visits
             if win_rate > best_win_rate:
-                best_action = child_node
+                best_action = key
                 best_win_rate = win_rate
-
     return best_action
 
 def is_win(board: Board, state, identity_of_bot: int):
@@ -171,8 +169,6 @@ def think(board: Board, current_state):
         # Do MCTS - This is all you!
         # ...
         # traverse node to find best option
-        print("num of iter:", _)
-        print("length of node untried actions:", len(node.untried_actions))
         leaf_node, state = traverse_nodes(node, board, state, bot_identity)
 
         # add node to tree
