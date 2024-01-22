@@ -3,7 +3,7 @@ from p2_t3 import Board
 from random import choice
 from math import sqrt, log
 
-num_nodes = 100
+num_nodes = 1000
 explore_faction = 2.
 
 def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
@@ -57,7 +57,7 @@ def expand_leaf(node: MCTSNode, board: Board, state):
 
     """
     if len(node.untried_actions) > 0:
-        action = node.untried_actions.pop()
+        action = node.untried_actions.pop(0)
         state = board.next_state(state, action) 
         n = MCTSNode(parent=node,parent_action=action, action_list=board.legal_actions(state))
         node.child_nodes[action] = n
@@ -77,7 +77,16 @@ def rollout(board: Board, state):
         state: The terminal game state
 
     """
-    while board.is_ended(state) == False:                   # continue the loop until the game is ended
+    while board.is_ended(state) == False:  
+        # pull all legal actions
+        actions = board.legal_actions(state)
+
+        for action in actions:
+            next_state = board.next_state(state,action)
+            if board.is_ended(next_state):
+                return next_state   
+        
+        # continue the loop until the game is ended
         randomAction = choice(board.legal_actions(state))   # randomly select a move from legal moves
         state = board.next_state(state, randomAction)       # update the state accordingly
     return state                                            # return the final state after the rollout
