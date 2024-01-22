@@ -22,11 +22,10 @@ def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
         state: The state associated with that node
 
     """
-
     while len(node.untried_actions) == 0 and board.is_ended(state) == False and node.child_nodes:
         # finds out if last action was committed by opponent
         is_opponent = True
-        if board.current_player(state) == identity:
+        if board.current_player(state) == bot_identity:
             is_opponent = False
         m = ucb(node, is_opponent)
 
@@ -53,7 +52,7 @@ def expand_leaf(node: MCTSNode, board: Board, state):
 
     """
     if len(node.untried_actions) > 0:
-        action = node.pop()
+        action = node.untried_actions.pop()
         state = board.next_state(state, action) 
         n = MCTSNode(parent=node,parent_action=action, action_list=board.legal_actions(state))
         node.child_nodes[action] = n
@@ -108,7 +107,7 @@ def ucb(node: MCTSNode, is_opponent: bool):
     """
     # ucb formula is (child node wins / child node total visits) + (exploration factor)*(sqrt(ln(current node total visits)/child node total visits))
     if node.visits == 0:
-        return float(inf)
+        return float("-inf")
     
     first_half = node.wins / node.visits
     second_half = explore_factor * sqrt(log(node.parent.visits) / node.visits) 
@@ -166,8 +165,9 @@ def think(board: Board, current_state):
         # Do MCTS - This is all you!
         # ...
         # traverse node to find best option
+        print("num of iter:", _)
         leaf_node, state = traverse_nodes(node, board, state, bot_identity)
-        
+
         # add node to tree
         expand_node, state = expand_leaf(leaf_node, board, state)
         
@@ -179,10 +179,8 @@ def think(board: Board, current_state):
 
         # add information from simulation back into board
         backpropagate(node, w)
-
     # Return an action, typically the most frequently used action (from the root) or the action with the best
     # estimated win rate.
     best_action = get_best_action(root_node)
-    
     print(f"Action chosen: {best_action}")
     return best_action
