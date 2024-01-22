@@ -23,20 +23,20 @@ def traverse_nodes(node: MCTSNode, board: Board, state, bot_identity: int):
 
     """
 
+    while len(node.untried_actions) == 0 and board.is_ended(state) == False and node.child_nodes:
+        # finds out if last action was committed by opponent
+        is_opponent = True
+        if board.current_player(state) == identity:
+            is_opponent = False
+        m = ucb(node, is_opponent)
 
-    while len(node.untried_actions) != 0 and board.is_ended(state) == False:
-    print('-------------------------------------------------------------------------------')
+        for key, value in node.child_nodes.items():
+            u = ucb(value, is_opponent)
+            if u > m:
+                node = value
+                m = u
+                state = board.next_state(state, node.parent_action)
 
-    print(node.untried_actions)
-    print("parent:", type(node.parent))
-    print("parent action:", type(node.parent_action))
-    for n in node.untried_actions:
-        print("tt:", type(n))
-    print('-------------------------------------------------------------------------------')
-    print(board.legal_actions(state) )
-    print('-------------------------------------------------------------------------------')
-
-    # potential possibilities of nodes that can be picked
     return node, state
 
 def expand_leaf(node: MCTSNode, board: Board, state):
@@ -121,7 +121,7 @@ def get_best_action(root_node: MCTSNode):
                 best_action = child_node
                 best_win_rate = win_rate
 
-    best_action
+    return best_action
 
 def is_win(board: Board, state, identity_of_bot: int):
     # checks if state is a win state for identity_of_bot
@@ -152,7 +152,7 @@ def think(board: Board, current_state):
         leaf_node, state = traverse_nodes(node, board, state, bot_identity)
         
         # add node to tree
-        # expand_node, state = expand_leaf(leaf_node, board, state)
+        expand_node, state = expand_leaf(leaf_node, board, state)
         
         # do simulation with the added node
         state = rollout(board, state)

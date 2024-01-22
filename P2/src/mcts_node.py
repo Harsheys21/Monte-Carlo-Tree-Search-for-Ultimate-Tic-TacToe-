@@ -26,7 +26,7 @@ class MCTSNode:
         """
         return ' '.join(["[", str(self.parent_action),
                          "Win rate:", "{0:.0f}%".format(100 * self.wins / self.visits),
-                         "Visits:", str(self.visits),  "]"])
+                        "Visits:", str(self.visits),  "]"])
 
     def tree_to_string(self, horizon=1, indent=0):
         """ This method returns a string of the tree down to a defined horizon. The string is recursively constructed.
